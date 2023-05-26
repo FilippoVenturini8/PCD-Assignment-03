@@ -1,18 +1,15 @@
-package ex1.view;
+package ex1.actors;
 
-import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
-import ex1.actors.RootActor;
-import ex1.commands.root.RootCommand;
 import ex1.commands.root.Start;
 import ex1.commands.view.FinalResult;
 import ex1.commands.view.IncrementalResult;
 import ex1.commands.view.ViewCommand;
-import ex1.model.AnalyzedFile;
-import ex1.model.Interval;
-import ex1.model.Report;
-import ex1.model.SetupInfo;
+import ex1.utils.AnalyzedFile;
+import ex1.utils.Interval;
+import ex1.utils.Report;
+import ex1.utils.SetupInfo;
 
 import java.util.Map;
 import java.util.Scanner;

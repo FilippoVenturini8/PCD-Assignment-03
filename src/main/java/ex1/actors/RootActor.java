@@ -8,14 +8,15 @@ import ex1.commands.result.ResultCommand;
 import ex1.commands.result.Subscribe;
 import ex1.commands.root.RootCommand;
 import ex1.commands.root.Start;
+import ex1.commands.root.Stop;
 import ex1.commands.scanfolder.ChildTerminated;
 import ex1.commands.scanfolder.Scan;
 import ex1.commands.scanfolder.ScanFolderCommand;
 import ex1.commands.view.ViewCommand;
-import ex1.view.ConsoleActor;
 
 public class RootActor extends AbstractBehavior<RootCommand> {
-    ActorRef<ResultCommand> resultActor;
+    private ActorRef<ResultCommand> resultActor;
+    private ActorRef<ScanFolderCommand> rootScanFolderActor;
     public enum ViewType{
         CONSOLE, GUI;
     }
@@ -39,13 +40,21 @@ public class RootActor extends AbstractBehavior<RootCommand> {
         ReceiveBuilder<RootCommand> builder = newReceiveBuilder();
 
         builder.onMessage(Start.class, this::onStart);
+        builder.onMessage(Stop.class, this::onStop);
         builder.onMessage(ChildTerminated.class, this::onChildTerminated);
 
         return builder.build();
     }
 
+    private Behavior<RootCommand> onStop(Stop stop) {
+        getContext().stop(this.resultActor);
+        this.rootScanFolderActor.tell(new Stop());
+        getContext().stop(this.rootScanFolderActor);
+        return this;
+    }
+
     private Behavior<RootCommand> onStart(Start startCommand) {
-        ActorRef<ScanFolderCommand> rootScanFolderActor = getContext().spawn(ScanFolderActor.create(), "rootScanFolderActor");
+        rootScanFolderActor = getContext().spawn(ScanFolderActor.create(), "rootScanFolderActor");
         rootScanFolderActor.tell(new Scan(startCommand.getSetupInfo().directory()));
 
         this.resultActor = getContext().spawn(ResultActor.create(startCommand.getSetupInfo()), "resultActor");

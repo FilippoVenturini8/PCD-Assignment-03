@@ -1,11 +1,9 @@
-package ex1.model;
+package ex1.utils;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Document {
     private final File file;
@@ -34,5 +32,9 @@ public class Document {
 
     public String getPath(){
         return this.file.getPath();
+    }
+
+    public String getName(){
+        return this.file.getName();
     }
 }

@@ -1,4 +1,4 @@
-package ex1.model;
+package ex1.utils;
 
 public record Interval(int min, int max) implements Comparable<Interval>{
 

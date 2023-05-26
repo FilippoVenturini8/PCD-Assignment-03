@@ -1,18 +1,12 @@
 package ex1.actors;
 
-import akka.actor.ActorSelection;
-import akka.actor.typed.ActorRef;
 import akka.actor.typed.Behavior;
 import akka.actor.typed.javadsl.*;
 import ex1.commands.documentanalyzer.CountLines;
 import ex1.commands.documentanalyzer.DocumentAnalyzerCommand;
 import ex1.commands.result.AddNewResult;
-import ex1.commands.result.ResultCommand;
-import ex1.commands.root.RootCommand;
-import ex1.commands.root.Start;
 import ex1.commands.scanfolder.ChildTerminated;
-import ex1.model.AnalyzedFile;
-import ex1.model.Document;
+import ex1.utils.AnalyzedFile;
 
 public class DocumentAnalyzerActor extends AbstractBehavior<DocumentAnalyzerCommand> {
     private DocumentAnalyzerActor(ActorContext<DocumentAnalyzerCommand> context) {

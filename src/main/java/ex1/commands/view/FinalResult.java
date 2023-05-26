@@ -1,6 +1,6 @@
 package ex1.commands.view;
 
-import ex1.model.Report;
+import ex1.utils.Report;
 
 public class FinalResult implements ViewCommand{
     private final Report finalReport;

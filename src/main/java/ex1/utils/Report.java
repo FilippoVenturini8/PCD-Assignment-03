@@ -1,4 +1,4 @@
-package ex1.model;
+package ex1.utils;
 
 import java.util.List;
 import java.util.Map;

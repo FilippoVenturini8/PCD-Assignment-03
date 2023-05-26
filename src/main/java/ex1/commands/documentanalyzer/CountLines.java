@@ -1,6 +1,6 @@
 package ex1.commands.documentanalyzer;
 
-import ex1.model.Document;
+import ex1.utils.Document;
 
 import java.io.File;
 import java.io.IOException;

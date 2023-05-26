@@ -1,6 +1,6 @@
 package ex1.commands.root;
 
-import ex1.model.SetupInfo;
+import ex1.utils.SetupInfo;
 
 public class Start implements RootCommand{
     private final SetupInfo setupInfo;

@@ -1,4 +1,4 @@
-package ex1.model;
+package ex1.utils;
 
 public class AnalyzedFile implements Comparable<AnalyzedFile> {
 

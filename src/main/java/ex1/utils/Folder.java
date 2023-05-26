@@ -1,4 +1,4 @@
-package ex1.model;
+package ex1.utils;
 import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
@@ -45,6 +45,10 @@ public class Folder {
 
     public static Folder fromDirectory(File dir) throws IOException {
         return new Folder(dir);
+    }
+
+    public String getName(){
+        return this.file.getName();
     }
 }
 

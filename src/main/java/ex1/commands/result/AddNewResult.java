@@ -1,6 +1,6 @@
 package ex1.commands.result;
 
-import ex1.model.AnalyzedFile;
+import ex1.utils.AnalyzedFile;
 
 public class AddNewResult implements ResultCommand{
     private final AnalyzedFile newResult;

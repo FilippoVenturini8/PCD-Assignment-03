@@ -1,6 +1,6 @@
 package ex1.commands.scanfolder;
 
-import ex1.model.Folder;
+import ex1.utils.Folder;
 
 import java.io.File;
 import java.io.IOException;

@@ -16,6 +16,8 @@ dependencies {
     implementation(platform("com.typesafe.akka:akka-bom_2.13:2.8.2"))
     implementation("com.typesafe.akka:akka-actor-typed_2.13")
 
+    implementation("ch.qos.logback:logback-classic:1.2.3")
+
 }
 
 tasks.getByName<Test>("test") {

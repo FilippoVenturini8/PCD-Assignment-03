@@ -6,12 +6,11 @@ import akka.actor.typed.Terminated;
 import akka.actor.typed.javadsl.Behaviors;
 import ex1.actors.RootActor;
 
-public class ConsoleMain {
-
+public class GUIMain {
     public static Behavior<Void> create(){
         return Behaviors.setup(
                 context -> {
-                    context.spawn(RootActor.create(RootActor.ViewType.CONSOLE), "rootActor");
+                    context.spawn(RootActor.create(RootActor.ViewType.GUI), "rootActor");
                     return Behaviors.receive(Void.class)
                             .onSignal(Terminated.class, sig -> Behaviors.stopped())
                             .build();
@@ -19,6 +18,6 @@ public class ConsoleMain {
     }
 
     public static void main(String[] args){
-        ActorSystem.create(ConsoleMain.create(), "SourceAnalyzer");
+        ActorSystem.create(GUIMain.create(), "SourceAnalyzer");
     }
 }
