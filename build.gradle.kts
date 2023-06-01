@@ -17,6 +17,9 @@ dependencies {
     implementation("com.typesafe.akka:akka-actor-typed_2.13")
 
     implementation("ch.qos.logback:logback-classic:1.2.3")
+    implementation("com.rabbitmq:amqp-client:5.17.0")
+
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.15.1")
 
 }
 
