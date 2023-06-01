@@ -1,5 +1,6 @@
 package ex2;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
@@ -17,6 +18,7 @@ public class ConnectionHandler {
     private final Channel channel;
     private final Connection connection;
     private final ObjectMapper mapper = new ObjectMapper();
+    private boolean isGridInitialized;
     private final String clientId = String.valueOf(new Random().nextInt());
     private final BrushManager brushManager;
     private final PixelGrid grid;
@@ -47,11 +49,12 @@ public class ConnectionHandler {
         channel.queueBind(queueName, EXCHANGE_NAME, "newColor");
         channel.queueBind(queueName, EXCHANGE_NAME, "newPaintedPixel");
         channel.queueBind(queueName, EXCHANGE_NAME, "initInfo-"+this.clientId);
-
+        channel.queueBind(queueName, EXCHANGE_NAME, "gridRequest-"+this.clientId);
+        channel.queueBind(queueName, EXCHANGE_NAME, "gridResponse-"+this.clientId);
 
         DeliverCallback deliverCallback = (consumerTag, delivery) -> {
             String message = new String(delivery.getBody(), "UTF-8");
-            System.out.println(" [x] Received '" + delivery.getEnvelope().getRoutingKey() + "':'" + message + "'");
+            //System.out.println(" [x] Received '" + delivery.getEnvelope().getRoutingKey() + "':'" + message + "'");
 
             switch (delivery.getEnvelope().getRoutingKey()){
                 case "join" -> this.onJoin(mapper.readValue(delivery.getBody(), JoinMessage.class));
@@ -62,6 +65,10 @@ public class ConnectionHandler {
             }
             if(delivery.getEnvelope().getRoutingKey().equals("initInfo-"+this.clientId)){
                 this.onInitInfo(mapper.readValue(delivery.getBody(), InitMessage.class));
+            }else if(delivery.getEnvelope().getRoutingKey().equals("gridRequest-"+this.clientId)){
+                this.onGridRequest(mapper.readValue(delivery.getBody(), Message.class));
+            }else if(delivery.getEnvelope().getRoutingKey().equals("gridResponse-"+this.clientId)){
+                this.onGridResponse(mapper.readValue(delivery.getBody(), GridMessage.class));
             }
             this.gridView.refresh();
         };
@@ -95,8 +102,6 @@ public class ConnectionHandler {
         channel.basicPublish(EXCHANGE_NAME, "newPaintedPixel", null, this.mapper.writeValueAsBytes(paintMessage));
     }
 
-
-
     private void onJoin(JoinMessage joinMessage) throws IOException {
         brushManager.addBrush(new BrushManager.Brush(joinMessage.getId(),10, 10, joinMessage.getColor()));
 
@@ -124,7 +129,21 @@ public class ConnectionHandler {
         grid.set(paintMessage.getX(), paintMessage.getY(), brushManager.getBrush(paintMessage.getId()).getColor());
     }
 
-    private void onInitInfo(InitMessage initMessage){
+    private void onInitInfo(InitMessage initMessage) throws IOException {
+        if(!this.isGridInitialized){
+            this.isGridInitialized = true;
+            Message gridRequest = new Message(this.clientId);
+            channel.basicPublish(EXCHANGE_NAME, "gridRequest-"+initMessage.getId(), null, this.mapper.writeValueAsBytes(gridRequest));
+        }
         brushManager.addBrush(new BrushManager.Brush(initMessage.getId(), initMessage.getX(), initMessage.getY(), initMessage.getColor()));
+    }
+
+    private void onGridRequest(Message gridRequest) throws IOException {
+        GridMessage gridMessage = new GridMessage(this.clientId, this.grid.toList());
+        channel.basicPublish(EXCHANGE_NAME, "gridResponse-"+gridRequest.getId(), null, this.mapper.writeValueAsBytes(gridMessage));
+    }
+
+    private void onGridResponse(GridMessage gridResponse) throws IOException {
+        gridResponse.getPixels().forEach(p -> this.grid.set(p.getX(), p.getY(), p.getColor()));
     }
 }

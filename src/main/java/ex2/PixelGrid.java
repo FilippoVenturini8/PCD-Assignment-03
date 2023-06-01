@@ -1,6 +1,6 @@
 package ex2;
 
-import java.util.Arrays;
+import java.util.*;
 
 public class PixelGrid {
 	private final int nRows;
@@ -30,10 +30,18 @@ public class PixelGrid {
 	public int getNumRows() {
 		return this.nRows;
 	}
-	
 
 	public int getNumColumns() {
 		return this.nColumns;
+	}
+	public List<Pixel> toList(){
+		List<Pixel> pixels = new LinkedList<>();
+		for(int i = 0; i < nRows; i++){
+			for(int j = 0; j < nColumns; j++){
+				pixels.add(new Pixel(i, j, grid[j][i]));
+			}
+		}
+		return pixels;
 	}
 	
 }
