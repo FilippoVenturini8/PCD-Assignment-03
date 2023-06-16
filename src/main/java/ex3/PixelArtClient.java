@@ -1,40 +1,63 @@
 package ex3;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+import java.rmi.NotBoundException;
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.util.Random;
 
 public class PixelArtClient {
-    public static void main(String[] args){
 
-        String host = (args.length < 1) ? null : args[0];
-        try{
-            Registry registry = LocateRegistry.getRegistry(host);
-
+    public static void main(String[] args) {
+        int myBrushId = new Random().nextInt();
+        try {
+            Registry registry = LocateRegistry.getRegistry("127.0.0.1");
             BrushManager brushManager = (BrushManager) registry.lookup("brushManager");
-            PixelGrid pixelGrid = (PixelGrid) registry.lookup("pixelGrid");
+            PixelGrid grid = (PixelGrid) registry.lookup("pixelGrid");
 
-            Brush localBrush = new BrushImpl(0, 0, new Random().nextInt(256 * 256 * 256));
-            brushManager.addBrush(localBrush);
+            brushManager.addBrush(new BrushImpl(0, 0, myBrushId, new Random().nextInt(256 * 256 * 256)));
 
-            PixelGridView view = new PixelGridView(pixelGrid, brushManager, 800, 800);
+            PixelGridView view = new PixelGridView(grid, brushManager, 800, 800);
 
             view.addMouseMovedListener((x, y) -> {
-                localBrush.updatePosition(x, y);
+                brushManager.updateBrushPosition(myBrushId, x, y);
                 view.refresh();
             });
 
             view.addPixelGridEventListener((x, y) -> {
-                pixelGrid.set(x, y, localBrush.getColor());
+                grid.set(x, y, brushManager.getBrush(myBrushId).getColor());
                 view.refresh();
             });
 
-            view.addColorChangedListener(localBrush::setColor);
+            new javax.swing.Timer(33, e -> {
+                view.refresh();
+            }).start();
+
+            view.addColorChangedListener(color -> {
+                brushManager.changeBrushColor(myBrushId, color);
+            });
+
+            view.addWindowListener(new WindowAdapter(){
+                public void windowClosing(WindowEvent e){
+                    try {
+                        brushManager.removeBrush(myBrushId);
+                        System.exit(0);
+                    } catch (RemoteException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                }
+            });
 
             view.display();
-        }catch (Exception e) {
+
+        } catch (RemoteException | NotBoundException e) {
             System.err.println("Client exception: " + e.toString());
             e.printStackTrace();
         }
+
     }
 }

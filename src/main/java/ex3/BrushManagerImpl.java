@@ -1,41 +1,45 @@
 package ex3;
 
 
-import java.awt.*;
 import java.rmi.RemoteException;
+import java.util.LinkedList;
 import java.util.List;
 
 public class BrushManagerImpl implements BrushManager {
-    private static final int BRUSH_SIZE = 10;
-    private static final int STROKE_SIZE = 2;
-    private List<Brush> brushes = new java.util.ArrayList<>();
+    private List<Brush> brushes = new java.util.LinkedList<>();
 
     @Override
-    public synchronized void draw(final Graphics2D g) throws RemoteException{
-        brushes.forEach(brush -> {
-            try{
-                g.setColor(new Color(brush.getColor()));
-                var circle = new java.awt.geom.Ellipse2D.Double(brush.getX() - BRUSH_SIZE / 2.0, brush.getY() - BRUSH_SIZE / 2.0, BRUSH_SIZE, BRUSH_SIZE);
-                // draw the polygon
-                g.fill(circle);
-                g.setStroke(new BasicStroke(STROKE_SIZE));
-                g.setColor(Color.BLACK);
-                g.draw(circle);
-            }catch (RemoteException ex){
-                System.err.println("Client exception: " + ex.toString());
-                ex.printStackTrace();
-            }
-        });
+    public synchronized List<Brush> getBrushes() throws RemoteException{
+        return new LinkedList<>(brushes);
     }
 
     @Override
-    public synchronized void  addBrush(final Brush brush) throws RemoteException{
+    public synchronized void addBrush(final Brush brush) throws RemoteException{
         brushes.add(brush);
     }
 
     @Override
-    public synchronized void removeBrush(final Brush brush) throws RemoteException {
-        brushes.remove(brush);
+    public synchronized void removeBrush(final int brushId) throws RemoteException{
+        brushes.remove(this.getBrush(brushId));
     }
 
+    @Override
+    public synchronized void updateBrushPosition(int brushId, int x, int y) throws RemoteException {
+        this.getBrush(brushId).updatePosition(x, y);
+    }
+
+    @Override
+    public synchronized void changeBrushColor(int brushId, int color) throws RemoteException{
+        this.getBrush(brushId).setColor(color);
+    }
+
+    @Override
+    public synchronized Brush getBrush(int id) throws RemoteException{
+        for(Brush b: brushes){
+            if(b.getId() == id){
+                return b;
+            }
+        }
+        return null;
+    }
 }
